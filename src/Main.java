@@ -21,17 +21,4 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
-    public class Point {
-        public double x;
-        public double y;
-
-        public Point(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public void add(Point point) {
-        }
-    }
 }
