@@ -9,7 +9,7 @@ import java.io.IOException;
  * Simple abstract class to wrap method for loading fxml file of
  * specific items.
  * <p></p>
- * Created by user on 2015-04-27.
+ * Created by dybisz on 2015-04-27.
  */
 public abstract class FxmlLoader {
     /**
