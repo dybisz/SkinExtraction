@@ -19,7 +19,8 @@ import java.util.List;
 public class FuzzySkinExtractor extends Task {
     private StringProperty messagesPipeline = new SimpleStringProperty("");
     private static final int NUMBER_OF_CLUSTERS = 2;
-    private static final double FUZZINESS = 1.25;
+    private static double FUZZINESS = 1.25;
+    private static double EPSILON = 0.5;
     private ImageView imageView;
     private List<Pixel> pixels;
     private List<Features> points;
@@ -27,11 +28,13 @@ public class FuzzySkinExtractor extends Task {
     private int width;
     private int height;
 
-    public FuzzySkinExtractor(ImageView imageView, List<Pixel> pixels, int width, int height) throws Exception {
+    public FuzzySkinExtractor(ImageView imageView, List<Pixel> pixels, int width, int height, double fuzziness, double epsilon) throws Exception {
         this.imageView = imageView;
         this.pixels = pixels;
         this.points = generateFeaturesFromPixels();
-        this.fuzzyCMeans = new FuzzyCMeans(points, NUMBER_OF_CLUSTERS, FUZZINESS);
+        this.FUZZINESS = fuzziness;
+        this.EPSILON = epsilon;
+        this.fuzzyCMeans = new FuzzyCMeans(points, NUMBER_OF_CLUSTERS, fuzziness, epsilon);
         this.messagesPipeline = generateMessagesPipeline();
         this.width = width;
         this.height = height;

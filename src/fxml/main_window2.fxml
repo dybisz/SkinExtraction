@@ -11,7 +11,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-<fx:root prefHeight="400.0" prefWidth="472.0" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root prefHeight="410.0" prefWidth="472.0" type="javafx.scene.layout.AnchorPane" xmlns="http://javafx.com/javafx/8.0.45" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <GridPane alignment="CENTER" gridLinesVisible="true" layoutX="10.0" layoutY="10.0" pickOnBounds="false" prefHeight="400.0" prefWidth="800.0" snapToPixel="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -25,16 +25,12 @@
                </rowConstraints>
                <children>
                   <Pane fx:id="dragPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-                  <ScrollPane fx:id="originalImagePane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" onDragDropped="#onDragDropped" onDragOver="#onDragOver" pickOnBounds="false" vbarPolicy="NEVER">
+                  <ScrollPane fx:id="originalImagePane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" onDragDropped="#onDragDropped" onDragOver="#onDragOver" onMouseClicked="#onMouseClicked" pickOnBounds="false" vbarPolicy="NEVER">
                      <padding>
                         <Insets bottom="2.0" left="3.0" right="1.0" top="3.0" />
                      </padding></ScrollPane>
                   <ScrollPane fx:id="resultImagePane" hbarPolicy="NEVER" vbarPolicy="NEVER" GridPane.columnIndex="1" />
-                  <Label fx:id="dragInfo" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mouseTransparent="true" text="Drag and Drop Here">
-                     <font>
-                        <Font size="17.0" />
-                     </font>
-                  </Label>
+                  <Label fx:id="dragInfo" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mouseTransparent="true" prefHeight="50.0" text="Drag and Drop / Double Click Here " />
                </children>
             </GridPane>
             <HBox GridPane.rowIndex="1">
@@ -46,12 +42,37 @@
             <Button fx:id="startSkinExtraction" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#extractSkin" text="Extract Skin" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
             <ProgressBar fx:id="progress" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.rowIndex="3" />
             <Label fx:id="infoStrip" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS" />
+            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="5">
+               <children>
+                  <Label fx:id="infoStrip1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Fuzziness:">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="fuzziness" maxHeight="1.7976931348623157E308" prefHeight="28.0" prefWidth="55.0" text="1.25" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets bottom="5.0" top="5.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Label fx:id="infoStrip11" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Epsilon:">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="epsilon" maxHeight="1.7976931348623157E308" prefHeight="28.0" prefWidth="55.0" text="0.5">
+                     <HBox.margin>
+                        <Insets bottom="5.0" top="5.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+            </HBox>
          </children>
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
          </columnConstraints>
          <rowConstraints>
             <RowConstraints maxHeight="457.0" minHeight="10.0" prefHeight="293.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="180.0" minHeight="10.0" prefHeight="107.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="180.0" minHeight="10.0" prefHeight="107.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="180.0" minHeight="10.0" prefHeight="107.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="180.0" minHeight="10.0" prefHeight="107.0" vgrow="SOMETIMES" />

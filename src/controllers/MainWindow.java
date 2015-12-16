@@ -7,23 +7,20 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import util.*;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Contains all elements of the application and
@@ -81,6 +78,12 @@ public class MainWindow extends AnchorPane {
 
     @FXML
     Pane dragPane;
+
+    @FXML
+    TextField fuzziness;
+
+    @FXML
+    TextField epsilon;
 
     public MainWindow() {
         FxmlLoader.loadFxml(this, "/fxml/main_window2.fxml");
@@ -175,7 +178,8 @@ public class MainWindow extends AnchorPane {
                 startSkinExtraction();
             } catch (Exception e) {
                 duringSkinExtraction.setValue(false);
-                e.printStackTrace();
+                infoStrip.textProperty().unbind();
+                infoStrip.textProperty().setValue(e.getMessage());
             }
         }
     }
@@ -191,11 +195,45 @@ public class MainWindow extends AnchorPane {
     private FuzzySkinExtractor prepareFuzzySkinExtractor(ImageView imageView) throws Exception {
         int width = getOriginalImageWidth();
         int height = getOriginalImageHeight();
-        FuzzySkinExtractor fuzzySkinExtractor = new FuzzySkinExtractor(imageView, originPixels, width, height);
+        double fuzziness = readFuzziness();
+        double epsilon = readEpsilon();
+        FuzzySkinExtractor fuzzySkinExtractor = new FuzzySkinExtractor(imageView, originPixels, width, height, fuzziness, epsilon);
         fuzzySkinExtractor.setOnSucceeded((t) -> {
             outputPixels = (List<Pixel>) fuzzySkinExtractor.getValue();
         });
         return fuzzySkinExtractor;
+    }
+
+    private double readEpsilon() throws Exception {
+        String sEps = epsilon.getText();
+        double epsilon;
+
+        try {
+            epsilon = Double.parseDouble(sEps);
+        }catch (Exception e) {
+            throw new Exception("ERROR: epsilon not a double. ");
+        }
+
+        if(epsilon <= 0.0) throw new Exception("ERROR: epsilon must be > 0 and < 10000000" + epsilon);
+        if(epsilon > 10000000.0) throw new Exception("ERROR: epsilon must be > 0 and < 10000000" + epsilon);
+
+
+        return epsilon;
+    }
+
+    private double readFuzziness() throws Exception {
+        String sFuzz = fuzziness.getText();
+        double fuzziness;
+
+        try {
+            fuzziness = Double.parseDouble(sFuzz);
+        }catch (Exception e) {
+            throw new Exception("ERROR: fuzziness not a double. ");
+        }
+
+        if(fuzziness <= 1.0) throw new Exception("ERROR: fuzziness must be > 1 and < 1000");
+        if(fuzziness > 1000.0) throw new Exception("ERROR: fuzziness must be > 1 and < 1000");
+        return fuzziness;
     }
 
     private int getOriginalImageWidth() {
@@ -222,6 +260,22 @@ public class MainWindow extends AnchorPane {
             event.acceptTransferModes(TransferMode.LINK);
         else
             event.consume();
+    }
+
+    @FXML
+    protected void onMouseClicked(MouseEvent e) {
+        if(e.getButton().equals(MouseButton.PRIMARY)){
+            if(e.getClickCount() == 2){
+                ImageDialogLoader imageDialogLoader = new ImageDialogLoader();
+                File file = imageDialogLoader.openSaveDialog();
+                try {
+                    loadPicture(file.toURI().toURL().toString());
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                }
+                resetData();
+            }
+        }
     }
 
     @FXML

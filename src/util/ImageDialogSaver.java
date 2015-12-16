@@ -10,8 +10,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by dybisz on 22/10/2015.
- */
+* Created by dybisz on 22/10/2015.
+        */
 public class ImageDialogSaver {
     private Image image;
     private Stage stage;

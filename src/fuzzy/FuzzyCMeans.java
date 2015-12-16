@@ -1,9 +1,9 @@
 package fuzzy;
 
 import javafx.beans.property.*;
+import util.ClockMeasure;
 
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +22,21 @@ public class FuzzyCMeans {
     private StringProperty info = new SimpleStringProperty("");
     private List<Features> points;
     private MembershipMatrix membershipMatrix;
+    private MembershipMatrix prevMembershipMatrix;
     private int numberOfClusters;
     private int numberOfPoints;
     private double fuzziness;
+    private double epsilon;
     private int pointsDimensions;
+    private ClockMeasure clock = new ClockMeasure();
 
-    public FuzzyCMeans(List<Features> points, int numberOfCentroids, double fuzziness) throws Exception {
+    public FuzzyCMeans(List<Features> points, int numberOfCentroids, double fuzziness, double epsilon) throws Exception {
         checkForNull(points);
         this.points = points;
         this.numberOfClusters = numberOfCentroids;
         this.numberOfPoints = points.size();
         this.fuzziness = fuzziness;
+        this.epsilon = epsilon;
         this.pointsDimensions = extractPointsDimensions();
     }
 
@@ -46,22 +50,24 @@ public class FuzzyCMeans {
         return points.get(0).getNumberOfDim();
     }
 
-    // TODO(dybisz) change void to some list
-    // TODO(dybisz) clean it UP
     public FuzzyCMeansResults calculate() throws FileNotFoundException, UnsupportedEncodingException {
         membershipMatrix = new MembershipMatrix(numberOfPoints, numberOfClusters);
+
         List<Centroid> newCentroids = calculateNewCentroids();
         List<Centroid> oldCentroids;
         double exponent = 2.0 / (fuzziness - 1.0);
 
+        clock.clockStart();
+
         for (int loop = 0; ; loop++) {
+            prevMembershipMatrix = membershipMatrix;
             oldCentroids = newCentroids;
             setInfo("[Fuzzy_C_Means] Loop " + loop);
             for (int p = 0; p < numberOfPoints; p++) {
                 setInfo("[Fuzzy_C_Means] Loop " + loop + " | point " + p );
                 for (int c = 0; c < numberOfClusters; c++) {
                     setInfo("[Fuzzy_C_Means] Loop " + loop + " | point " + p + " | cluster " + c);
-                    double denominator = 0;
+
                     double TEMP_denominator = 0;
                     double point_cluster_dist = euclideanDistance(points.get(p), newCentroids.get(c));
                     double TEMP_nominator = Math.pow((1.0 / point_cluster_dist), exponent);
@@ -69,23 +75,37 @@ public class FuzzyCMeans {
                     for (int r = 0; r < numberOfClusters; r++) {
                         double summary_point_cluster_dist = euclideanDistance(points.get(p), newCentroids.get(r));
                         double ratio = Math.pow(point_cluster_dist / summary_point_cluster_dist, exponent);
-                        denominator += ratio;
                         TEMP_denominator += Math.pow((1.0 / summary_point_cluster_dist), exponent);
                     }
-
-//                    membershipMatrix.set(p, c, 1.0 / denominator);
                     membershipMatrix.set(p, c, TEMP_nominator / TEMP_denominator);
                 }
             }
             newCentroids = calculateNewCentroids();
-            if (newCentroids.equals(oldCentroids)) {
+            if(matrixDifferencesSmallerThanEpsilon())  {
                 break;
             }
-
         }
+        double time = clock.clockEnd();
         System.out.println(newCentroids);
-        setInfo("Centroids found.");
+        setInfo("Skin segmented. Fuzz: " + fuzziness + " Eps: " + epsilon + " Pix: "+ numberOfPoints + " Time: " + time);
         return new FuzzyCMeansResults(newCentroids, membershipMatrix);
+    }
+
+    private boolean matrixDifferencesSmallerThanEpsilon() {
+        boolean areAllSmallerThanEpsilon = true;
+        for (int p = 0; p < numberOfPoints; p++) {
+            for (int c = 0; c < numberOfClusters; c++) {
+                double prev = prevMembershipMatrix.get(p,c);
+                double curr = membershipMatrix.get(p,c);
+
+                if(Math.abs(curr - prev) > epsilon) {
+                    areAllSmallerThanEpsilon = false;
+                    break;
+                }
+            }
+        }
+
+        return areAllSmallerThanEpsilon;
     }
 
     private double euclideanDistance(Features point, Centroid centroid) {

@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class PixelsExtractor extends Task {
     Image image;
-
+    ClockMeasure clock = new ClockMeasure();
     public PixelsExtractor(Image image) {
         this.image = image;
     }
@@ -32,7 +32,7 @@ public class PixelsExtractor extends Task {
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
         List<Pixel> pixels = new ArrayList<>();
-
+        clock.clockStart();
         for (int readY = 0; readY < height; readY++) {
             for (int readX = 0; readX < width; readX++) {
                 updateMessage("[Extracting_Pixels] reading coordinates: (" + readX + " , " + readY + ")");
@@ -45,9 +45,9 @@ public class PixelsExtractor extends Task {
                 updateProgress(readY * width + readX, width * height);
             }
         }
-
+        double time = clock.clockEnd();
         updateProgress(0, 0);
-        updateMessage("Pixels extracted.");
+        updateMessage("Pixels extracted in " + time + " seconds.");
         MainWindow.duringPixelsExtraction.setValue(false);
         MainWindow.pixelsExtracted.setValue(true);
         return pixels;
